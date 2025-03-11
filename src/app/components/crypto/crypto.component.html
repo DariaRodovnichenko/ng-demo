@@ -1,0 +1,19 @@
+<div class="crypto-container">
+  <h3>🔥 Real-Time Crypto Prices</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Coin</th>
+        <th>Symbol</th>
+        <th>Price (USDT)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let coin of cryptoPrices">
+        <td>{{ coin.name }}</td>
+        <td>{{ coin.symbol }}</td>
+        <td>${{ coin.price.toFixed(6) }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
