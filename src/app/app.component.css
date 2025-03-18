@@ -1,0 +1,15 @@
+nav a {
+  text-decoration: none;
+  color: blue;
+  padding: 5px 10px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+nav a:active {
+  color: red;
+}

@@ -1,0 +1,48 @@
+.login-container {
+  width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.success-message {
+  color: green;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.login-error {
+  color: red;
+  margin-top: 10px;
+}
+
+.toggle-mode {
+  margin-top: 15px;
+}
+
+.toggle-mode a {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
