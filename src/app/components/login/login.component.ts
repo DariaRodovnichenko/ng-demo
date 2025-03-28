@@ -6,6 +6,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { FirestoreService } from '../../services/firestore.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  isRegisterMode = signal<boolean>(false); // Toggle between Login & Register
+  isRegisterMode = signal<boolean>(false);
   loginError = signal<string>('');
   successMessage = signal<string>('');
 
@@ -37,6 +39,11 @@ export class LoginComponent {
     () => this.loginForm.controls.password
   );
 
+  constructor(
+    private authService: AuthService,
+    private firestoreService: FirestoreService
+  ) {}
+
   toggleMode() {
     this.isRegisterMode.set(!this.isRegisterMode());
     this.loginError.set('');
@@ -56,32 +63,49 @@ export class LoginComponent {
   }
 
   registerUser(email: string, password: string) {
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    this.authService
+      .register(email, password)
+      .then((userCredential) => {
+        const { uid, email } = userCredential.user;
 
-    if (storedUsers.some((user: any) => user.email === email)) {
-      this.loginError.set('❌ User already exists.');
-      return;
-    }
-
-    storedUsers.push({ email, password });
-    localStorage.setItem('users', JSON.stringify(storedUsers));
-
-    this.successMessage.set('✅ Registration successful! Please log in.');
-    this.isRegisterMode.set(false);
+        // ✅ Save user info to Firestore
+        this.firestoreService
+          .saveData('users', {
+            uid,
+            email,
+            createdAt: new Date(),
+          })
+          .then(() => {
+            this.successMessage.set(
+              '✅ Registration successful! Please log in.'
+            );
+            this.loginError.set('');
+            this.isRegisterMode.set(false);
+            this.loginForm.reset();
+          })
+          .catch((firestoreError) => {
+            console.error('Firestore Error:', firestoreError);
+            this.loginError.set(
+              `⚠️ Registration succeeded but failed to save user data: ${firestoreError.message}`
+            );
+          });
+      })
+      .catch((authError) => {
+        console.error('Auth Error:', authError);
+        this.loginError.set(`❌ ${authError.message}`);
+      });
   }
 
   authenticateUser(email: string, password: string) {
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-
-    const user = storedUsers.find(
-      (user: any) => user.email === email && user.password === password
-    );
-
-    if (user) {
-      this.successMessage.set('✅ Login successful!');
-      this.loginError.set('');
-    } else {
-      this.loginError.set('❌ Invalid email or password.');
-    }
+    this.authService
+      .login(email, password)
+      .then(() => {
+        this.successMessage.set('✅ Login successful!');
+        this.loginError.set('');
+      })
+      .catch((error) => {
+        console.error(error);
+        this.loginError.set(`❌ ${error.message}`);
+      });
   }
 }
